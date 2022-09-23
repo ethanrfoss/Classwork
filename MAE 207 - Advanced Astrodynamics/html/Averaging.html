@@ -1,0 +1,458 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Averaging</title><meta name="generator" content="MATLAB 9.9"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2022-05-18"><meta name="DC.source" content="Averaging.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Simulation Parameters:</a></li><li><a href="#3">ad = 0:</a></li><li><a href="#4">ad = 0.001:</a></li><li><a href="#5">ad = 0.01:</a></li><li><a href="#6">ad = 0.1:</a></li><li><a href="#7">ad = 1:</a></li><li><a href="#8">Plot:</a></li><li><a href="#10">EOM:</a></li><li><a href="#11">Orbital Elements Converter:</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> Averaging
+</pre><h2 id="2">Simulation Parameters:</h2><pre class="codeinput">n = 10; <span class="comment">% Simulate for Ten Periods</span>
+tspan = [0 n*2*pi];
+</pre><h2 id="3">ad = 0:</h2><pre class="codeinput">r0 = [1;0;0]; v0 = [0;1;0]; ad = [0;0;0]; mu = 1;
+x0 = [r0;v0];
+
+[t1,x1] = ode45(@(t,x)EOM(t,x,ad,mu),tspan,x0,odeset(<span class="string">'AbsTol'</span>,1e-12,<span class="string">'RelTol'</span>,1e-9));
+a1 = CartesiantoOrbitalElements(x1',mu);
+</pre><h2 id="4">ad = 0.001:</h2><pre class="codeinput">r0 = [1;0;0]; v0 = [0;1;0]; ad = [0.001;0;0]; mu = 1;
+x0 = [r0;v0];
+
+[t2,x2] = ode45(@(t,x)EOM(t,x,ad,mu),tspan,x0,odeset(<span class="string">'AbsTol'</span>,1e-12,<span class="string">'RelTol'</span>,1e-9));
+a2 = CartesiantoOrbitalElements(x2',mu);
+</pre><h2 id="5">ad = 0.01:</h2><pre class="codeinput">r0 = [1;0;0]; v0 = [0;1;0]; ad = [0.01;0;0]; mu = 1;
+x0 = [r0;v0];
+
+[t3,x3] = ode45(@(t,x)EOM(t,x,ad,mu),tspan,x0,odeset(<span class="string">'AbsTol'</span>,1e-12,<span class="string">'RelTol'</span>,1e-9));
+a3 = CartesiantoOrbitalElements(x3',mu);
+</pre><h2 id="6">ad = 0.1:</h2><pre class="codeinput">r0 = [1;0;0]; v0 = [0;1;0]; ad = [0.1;0;0]; mu = 1;
+x0 = [r0;v0];
+
+[t4,x4] = ode45(@(t,x)EOM(t,x,ad,mu),tspan,x0,odeset(<span class="string">'AbsTol'</span>,1e-12,<span class="string">'RelTol'</span>,1e-9));
+a4 = CartesiantoOrbitalElements(x4',mu);
+</pre><h2 id="7">ad = 1:</h2><pre class="codeinput">r0 = [1;0;0]; v0 = [0;1;0]; ad = [1;0;0]; mu = 1;
+x0 = [r0;v0];
+
+[t5,x5] = ode45(@(t,x)EOM(t,x,ad,mu),tspan,x0,odeset(<span class="string">'AbsTol'</span>,1e-12,<span class="string">'RelTol'</span>,1e-9));
+a5 = CartesiantoOrbitalElements(x5',mu);
+</pre><h2 id="8">Plot:</h2><pre class="codeinput">figure;
+subplot(7,5,[1 6]);
+plot(x1(:,1),x1(:,2)); axis <span class="string">equal</span>;
+ylabel(<span class="string">'Trajectories'</span>,<span class="string">'fontweight'</span>,<span class="string">'bold'</span>);
+title(<span class="string">'ad = [0,0,0]'</span>);
+subplot(7,5,11);
+plot(t1,a1(1,:));
+xlabel(<span class="string">'Time[sec]'</span>);
+ylabel(<span class="string">'a'</span>,<span class="string">'fontweight'</span>,<span class="string">'bold'</span>);
+title(<span class="string">'Orbital Elements'</span>);
+subplot(7,5,16);
+plot(t1,a1(2,:));
+xlabel(<span class="string">'Time[sec]'</span>);
+ylabel(<span class="string">'e'</span>,<span class="string">'fontweight'</span>,<span class="string">'bold'</span>);
+subplot(7,5,21);
+plot(t1,a1(3,:));
+xlabel(<span class="string">'Time[sec]'</span>);
+ylabel(<span class="string">'i[deg]'</span>,<span class="string">'fontweight'</span>,<span class="string">'bold'</span>);
+subplot(7,5,26);
+plot(t1,a1(5,:));
+xlabel(<span class="string">'Time[sec]'</span>);
+ylabel(<span class="string">'\omega[deg]'</span>,<span class="string">'fontweight'</span>,<span class="string">'bold'</span>);
+subplot(7,5,31);
+plot(t1,a1(6,:));
+xlabel(<span class="string">'Time[sec]'</span>);
+ylabel(<span class="string">'M[deg]'</span>,<span class="string">'fontweight'</span>,<span class="string">'bold'</span>);
+
+subplot(7,5,[2 7]);
+plot(x2(:,1),x2(:,2)); axis <span class="string">equal</span>;
+title(<span class="string">'ad = [0.001,0,0]'</span>);
+subplot(7,5,12);
+plot(t2,a2(1,:));
+xlabel(<span class="string">'Time[sec]'</span>);
+title(<span class="string">'Orbital Elements'</span>);
+subplot(7,5,17);
+plot(t2,a2(2,:));
+xlabel(<span class="string">'Time[sec]'</span>);
+subplot(7,5,22);
+plot(t2,a2(3,:));
+xlabel(<span class="string">'Time[sec]'</span>);
+subplot(7,5,27);
+plot(t2,a2(5,:));
+xlabel(<span class="string">'Time[sec]'</span>);
+subplot(7,5,32);
+plot(t2,a2(6,:));
+xlabel(<span class="string">'Time[sec]'</span>);
+
+subplot(7,5,[3 8]);
+plot(x3(:,1),x3(:,2)); axis <span class="string">equal</span>;
+title(<span class="string">'ad = [0.01,0,0]'</span>);
+subplot(7,5,13);
+plot(t3,a3(1,:));
+xlabel(<span class="string">'Time[sec]'</span>);
+title(<span class="string">'Orbital Elements'</span>);
+subplot(7,5,18);
+plot(t3,a3(2,:));
+xlabel(<span class="string">'Time[sec]'</span>);
+subplot(7,5,23);
+plot(t3,a3(3,:));
+xlabel(<span class="string">'Time[sec]'</span>);
+subplot(7,5,28);
+plot(t3,a3(5,:));
+xlabel(<span class="string">'Time[sec]'</span>);
+subplot(7,5,33);
+plot(t3,a3(6,:));
+xlabel(<span class="string">'Time[sec]'</span>);
+
+subplot(7,5,[4 9]);
+plot(x4(:,1),x4(:,2)); axis <span class="string">equal</span>;
+title(<span class="string">'ad = [0.1,0,0]'</span>);
+subplot(7,5,14);
+plot(t4,a4(1,:));
+xlabel(<span class="string">'Time[sec]'</span>);
+title(<span class="string">'Orbital Elements'</span>);
+subplot(7,5,19);
+plot(t4,a4(2,:));
+xlabel(<span class="string">'Time[sec]'</span>);
+subplot(7,5,24);
+plot(t4,a4(3,:));
+xlabel(<span class="string">'Time[sec]'</span>);
+subplot(7,5,29);
+plot(t4,a4(5,:));
+xlabel(<span class="string">'Time[sec]'</span>);
+subplot(7,5,34);
+plot(t4,a4(6,:));
+xlabel(<span class="string">'Time[sec]'</span>);
+
+subplot(7,5,[5 10]);
+plot(x5(:,1),x5(:,2));
+title(<span class="string">'ad = [1,0,0]'</span>);
+subplot(7,5,15);
+plot(t5,a5(1,:));
+xlabel(<span class="string">'Time[sec]'</span>);
+title(<span class="string">'Orbital Elements'</span>);
+subplot(7,5,20);
+plot(t5,a5(2,:));
+xlabel(<span class="string">'Time[sec]'</span>);
+subplot(7,5,25);
+plot(t5,a5(3,:));
+xlabel(<span class="string">'Time[sec]'</span>);
+subplot(7,5,30);
+plot(t5,a5(5,:));
+xlabel(<span class="string">'Time[sec]'</span>);
+subplot(7,5,35);
+plot(t5,a5(6,:));
+xlabel(<span class="string">'Time[sec]'</span>);
+
+sgtitle(<span class="string">'Perturbing Acceleration Effects on Orbital Elements Simulated for 10 Periods(\Omega not plotted since it is undefined for all orbits)'</span>);
+</pre><img vspace="5" hspace="5" src="Averaging_01.png" alt=""> <pre class="codeinput"><span class="keyword">end</span>
+</pre><h2 id="10">EOM:</h2><pre class="codeinput"><span class="keyword">function</span> xdot = EOM(t,x,ad,mu)
+
+xdot = [x(4:6); -mu/norm(x(1:3))^3*x(1:3)+ad];
+
+<span class="keyword">end</span>
+</pre><h2 id="11">Orbital Elements Converter:</h2><pre class="codeinput"><span class="keyword">function</span> a = CartesiantoOrbitalElements(x,mu)
+
+<span class="comment">% Calculate Norms and Vectors of r and v:</span>
+    v = x(4:6,:);
+    r = x(1:3,:);
+    vmag = sqrt(sum(v.^2));
+    rmag = sqrt(sum(r.^2));
+
+    <span class="comment">% Vectors:</span>
+    h = cross(r,v); <span class="comment">% Angular Momentum</span>
+    hmag = sqrt(sum(h.^2));
+    n = cross([0;0;1]*ones(1,length(h)),h); <span class="comment">% Node Vector</span>
+    nmag = sqrt(sum(n.^2));
+    e = 1/mu*((vmag.^2-mu./rmag).*r-dot(r,v).*v); <span class="comment">% Eccentricity</span>
+    <span class="comment">%e = 1/mu*cross(v,h)-r/rmag;</span>
+    emag = sqrt(sum(e.^2));
+
+    <span class="comment">% Angles:</span>
+    i = acosd(h(3,:)./(hmag));
+    Om = acosd(n(1,:)./nmag);
+    Om(n(2,:)&lt;0) = 360 - Om(n(2,:)&lt;0);
+    <span class="keyword">if</span> nmag == 0
+        om = acosd(e(1,:)./emag);
+        om(emag&lt;10^-8) = NaN;
+    <span class="keyword">else</span>
+        om = acosd(dot(n,e)./(nmag.*emag));
+    <span class="keyword">end</span>
+    om(e(3,:)&lt;0) = 360 - om(e(3,:)&lt;0);
+
+    <span class="comment">% Other:</span>
+    p = hmag.^2/mu;
+    a = p./(1-emag.^2);
+    f = acos(dot(e,r)./(emag.*rmag));
+    f(dot(r,v)&lt;0) = 2*pi - f(dot(r,v)&lt;0);
+    f(emag&lt;10^-8) = NaN;
+
+    M = 180/pi*(asin(sqrt(1-emag.^2).*sin(f)./(1+emag.*cos(f)))-emag.*sqrt(1-emag.^2).*sin(f)./(1+emag.*cos(f)));
+    a = [a;emag;i;Om;om;M];
+
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+function Averaging
+
+%% Simulation Parameters:
+n = 10; % Simulate for Ten Periods
+tspan = [0 n*2*pi];
+
+%% ad = 0:
+r0 = [1;0;0]; v0 = [0;1;0]; ad = [0;0;0]; mu = 1;
+x0 = [r0;v0];
+
+[t1,x1] = ode45(@(t,x)EOM(t,x,ad,mu),tspan,x0,odeset('AbsTol',1e-12,'RelTol',1e-9));
+a1 = CartesiantoOrbitalElements(x1',mu);
+
+%% ad = 0.001:
+r0 = [1;0;0]; v0 = [0;1;0]; ad = [0.001;0;0]; mu = 1;
+x0 = [r0;v0];
+
+[t2,x2] = ode45(@(t,x)EOM(t,x,ad,mu),tspan,x0,odeset('AbsTol',1e-12,'RelTol',1e-9));
+a2 = CartesiantoOrbitalElements(x2',mu);
+
+%% ad = 0.01:
+r0 = [1;0;0]; v0 = [0;1;0]; ad = [0.01;0;0]; mu = 1;
+x0 = [r0;v0];
+
+[t3,x3] = ode45(@(t,x)EOM(t,x,ad,mu),tspan,x0,odeset('AbsTol',1e-12,'RelTol',1e-9));
+a3 = CartesiantoOrbitalElements(x3',mu);
+
+%% ad = 0.1:
+r0 = [1;0;0]; v0 = [0;1;0]; ad = [0.1;0;0]; mu = 1;
+x0 = [r0;v0];
+
+[t4,x4] = ode45(@(t,x)EOM(t,x,ad,mu),tspan,x0,odeset('AbsTol',1e-12,'RelTol',1e-9));
+a4 = CartesiantoOrbitalElements(x4',mu);
+
+%% ad = 1:
+r0 = [1;0;0]; v0 = [0;1;0]; ad = [1;0;0]; mu = 1;
+x0 = [r0;v0];
+
+[t5,x5] = ode45(@(t,x)EOM(t,x,ad,mu),tspan,x0,odeset('AbsTol',1e-12,'RelTol',1e-9));
+a5 = CartesiantoOrbitalElements(x5',mu);
+
+%% Plot:
+
+figure;
+subplot(7,5,[1 6]);
+plot(x1(:,1),x1(:,2)); axis equal;
+ylabel('Trajectories','fontweight','bold');
+title('ad = [0,0,0]');
+subplot(7,5,11);
+plot(t1,a1(1,:));
+xlabel('Time[sec]');
+ylabel('a','fontweight','bold');
+title('Orbital Elements');
+subplot(7,5,16);
+plot(t1,a1(2,:));
+xlabel('Time[sec]');
+ylabel('e','fontweight','bold');
+subplot(7,5,21);
+plot(t1,a1(3,:));
+xlabel('Time[sec]');
+ylabel('i[deg]','fontweight','bold');
+subplot(7,5,26);
+plot(t1,a1(5,:));
+xlabel('Time[sec]');
+ylabel('\omega[deg]','fontweight','bold');
+subplot(7,5,31);
+plot(t1,a1(6,:));
+xlabel('Time[sec]');
+ylabel('M[deg]','fontweight','bold');
+
+subplot(7,5,[2 7]);
+plot(x2(:,1),x2(:,2)); axis equal;
+title('ad = [0.001,0,0]');
+subplot(7,5,12);
+plot(t2,a2(1,:));
+xlabel('Time[sec]');
+title('Orbital Elements');
+subplot(7,5,17);
+plot(t2,a2(2,:));
+xlabel('Time[sec]');
+subplot(7,5,22);
+plot(t2,a2(3,:));
+xlabel('Time[sec]');
+subplot(7,5,27);
+plot(t2,a2(5,:));
+xlabel('Time[sec]');
+subplot(7,5,32);
+plot(t2,a2(6,:));
+xlabel('Time[sec]');
+
+subplot(7,5,[3 8]);
+plot(x3(:,1),x3(:,2)); axis equal;
+title('ad = [0.01,0,0]');
+subplot(7,5,13);
+plot(t3,a3(1,:));
+xlabel('Time[sec]');
+title('Orbital Elements');
+subplot(7,5,18);
+plot(t3,a3(2,:));
+xlabel('Time[sec]');
+subplot(7,5,23);
+plot(t3,a3(3,:));
+xlabel('Time[sec]');
+subplot(7,5,28);
+plot(t3,a3(5,:));
+xlabel('Time[sec]');
+subplot(7,5,33);
+plot(t3,a3(6,:));
+xlabel('Time[sec]');
+
+subplot(7,5,[4 9]);
+plot(x4(:,1),x4(:,2)); axis equal;
+title('ad = [0.1,0,0]');
+subplot(7,5,14);
+plot(t4,a4(1,:));
+xlabel('Time[sec]');
+title('Orbital Elements');
+subplot(7,5,19);
+plot(t4,a4(2,:));
+xlabel('Time[sec]');
+subplot(7,5,24);
+plot(t4,a4(3,:));
+xlabel('Time[sec]');
+subplot(7,5,29);
+plot(t4,a4(5,:));
+xlabel('Time[sec]');
+subplot(7,5,34);
+plot(t4,a4(6,:));
+xlabel('Time[sec]');
+
+subplot(7,5,[5 10]);
+plot(x5(:,1),x5(:,2));
+title('ad = [1,0,0]');
+subplot(7,5,15);
+plot(t5,a5(1,:));
+xlabel('Time[sec]');
+title('Orbital Elements');
+subplot(7,5,20);
+plot(t5,a5(2,:));
+xlabel('Time[sec]');
+subplot(7,5,25);
+plot(t5,a5(3,:));
+xlabel('Time[sec]');
+subplot(7,5,30);
+plot(t5,a5(5,:));
+xlabel('Time[sec]');
+subplot(7,5,35);
+plot(t5,a5(6,:));
+xlabel('Time[sec]');
+
+sgtitle('Perturbing Acceleration Effects on Orbital Elements Simulated for 10 Periods(\Omega not plotted since it is undefined for all orbits)');
+
+end
+
+%% EOM:
+function xdot = EOM(t,x,ad,mu)
+
+xdot = [x(4:6); -mu/norm(x(1:3))^3*x(1:3)+ad];
+    
+end
+
+%% Orbital Elements Converter:
+function a = CartesiantoOrbitalElements(x,mu)
+
+% Calculate Norms and Vectors of r and v:
+    v = x(4:6,:);
+    r = x(1:3,:);
+    vmag = sqrt(sum(v.^2));
+    rmag = sqrt(sum(r.^2));
+    
+    % Vectors:
+    h = cross(r,v); % Angular Momentum
+    hmag = sqrt(sum(h.^2));
+    n = cross([0;0;1]*ones(1,length(h)),h); % Node Vector
+    nmag = sqrt(sum(n.^2));
+    e = 1/mu*((vmag.^2-mu./rmag).*r-dot(r,v).*v); % Eccentricity
+    %e = 1/mu*cross(v,h)-r/rmag;
+    emag = sqrt(sum(e.^2));
+    
+    % Angles:
+    i = acosd(h(3,:)./(hmag));
+    Om = acosd(n(1,:)./nmag);
+    Om(n(2,:)<0) = 360 - Om(n(2,:)<0);
+    if nmag == 0
+        om = acosd(e(1,:)./emag);
+        om(emag<10^-8) = NaN;
+    else
+        om = acosd(dot(n,e)./(nmag.*emag));
+    end
+    om(e(3,:)<0) = 360 - om(e(3,:)<0);
+    
+    % Other:
+    p = hmag.^2/mu;
+    a = p./(1-emag.^2);
+    f = acos(dot(e,r)./(emag.*rmag));
+    f(dot(r,v)<0) = 2*pi - f(dot(r,v)<0);
+    f(emag<10^-8) = NaN;
+        
+    M = 180/pi*(asin(sqrt(1-emag.^2).*sin(f)./(1+emag.*cos(f)))-emag.*sqrt(1-emag.^2).*sin(f)./(1+emag.*cos(f)));
+    a = [a;emag;i;Om;om;M];
+
+end
+
+##### SOURCE END #####
+--></body></html>

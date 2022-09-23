@@ -1,0 +1,227 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>ThreeBodyProblem</title><meta name="generator" content="MATLAB 9.9"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2022-05-27"><meta name="DC.source" content="ThreeBodyProblem.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#3">Jacobi Synodic Frame Plot:</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> ThreeBodyProblem
+</pre><pre class="codeinput">m1 = 5.9722*10^24; <span class="comment">%Earth Mass(kg)</span>
+m2 = 7.34767*10^22; <span class="comment">%Moon Mass(kg)</span>
+
+mu = (m1/m2+1)^(-1); <span class="comment">%Jacobi Mu Non-Dimensional Constant</span>
+</pre><h2 id="3">Jacobi Synodic Frame Plot:</h2><pre class="codeinput">xi0 = [.8;0]; eta0 = [0;.3];
+x0 = [xi0;eta0];
+tspan = [0 100];
+
+[t,x] = ode45(@(t,x)JacobiEOM(t,x,mu),tspan,x0,odeset(<span class="string">'AbsTol'</span>,1e-12,<span class="string">'RelTol'</span>,1e-9));
+
+
+r1 = sqrt((x(:,1)+mu).^2+x(:,3).^2);
+r2 = sqrt((x(:,1)-1+mu).^2+x(:,3).^2);
+C = 2*((1-mu)*(.5*r1.^2+r1.^(-1))+mu*(.5*r2.^2+r2.^(-1)))-(x(:,2).^2+x(:,4).^2);
+<span class="comment">%U = (1-mu)./r1 + mu./r2;</span>
+
+[X,Y,CC] = ZeroVelCurve(mu,[-1.4 1.4],[-1.4 1.4]);
+
+figure; hold <span class="string">on</span>; axis <span class="string">equal</span>; grid <span class="string">on</span>; axis([-1.4 1.4 -1.4 1.4]);
+xlabel(<span class="string">'\xi'</span>); ylabel(<span class="string">'\eta'</span>); title(<span class="string">'Circular-Planar Synodic Frame Three-Body Problem'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>,<span class="string">'fontsize'</span>,20);
+plot([-1.4 1.4],[0 0],<span class="string">'--k'</span>);
+plot([0 0],[-1.4 1.4],<span class="string">'--k'</span>);
+plot(-mu,0,<span class="string">'k.'</span>,<span class="string">'MarkerSize'</span>,40);
+plot(1-mu,0,<span class="string">'k.'</span>,<span class="string">'MarkerSize'</span>,20);
+plot(0,0,<span class="string">'k.'</span>);
+
+l = plot(.83692,0,<span class="string">'b*'</span>);
+plot(1.15568,0,<span class="string">'b*'</span>);
+plot(-1.00506,0,<span class="string">'b*'</span>);
+plot(.48785,.86603,<span class="string">'b*'</span>);
+plot(.48785,-.86603,<span class="string">'b*'</span>);
+
+plot(x(:,1),x(:,3));
+
+contour(X,Y,CC,[C(1) C(1)]);
+
+figure; hold <span class="string">on</span>;
+xlabel(<span class="string">'Time'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>); ylabel(<span class="string">'C'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>);title(<span class="string">'Jacobi Integral'</span>,<span class="string">'interpreter'</span>,<span class="string">'latex'</span>,<span class="string">'fontsize'</span>,35);
+plot(t,C);
+</pre><img vspace="5" hspace="5" src="ThreeBodyProblem_01.png" alt=""> <img vspace="5" hspace="5" src="ThreeBodyProblem_02.png" alt=""> <pre class="codeinput"><span class="keyword">end</span>
+
+<span class="keyword">function</span> xdot = NewtonEOM(x,m)
+
+G = 6.6743*10^(-17); <span class="comment">%Nkm^2/kg^2</span>
+
+xdot = [x(4:6)
+        G*m2*(x(7:9)-x(1:3))/(sqrt(sum((x(7:9)-x(1:3)).^2)))^3+G*m3*(x(13:15)-x(1:3))/(sqrt(sum((x(13:15)-x(1:3)).^2)))^3
+        x(10:12)
+        G*m1*(x(1:3)-x(7:9))/(sqrt(sum((x(7:9)-x(1:3)).^2)))^3+G*m3*(x(13:15)-x(7:9))/(sqrt(sum((x(13:15)-x(7:9)).^2)))^3
+        x(16:18)
+        G*m1*(x(1:3)-x(13:15))/(sqrt(sum((x(13:15)-x(1:3)).^2)))^3+G*m2*(x(7:9)-x(13:15))/(sqrt(sum((x(13:15)-x(7:9)).^2)))^3];
+
+<span class="keyword">end</span>
+
+<span class="keyword">function</span> xdot = JacobiEOM(t,x,mu)
+
+xdot = [x(2)
+        -(1-mu)*(x(1)+mu)/((x(1)+mu)^2+x(3)^2)^(3/2)-mu*(x(1)+mu-1)/((x(1)+mu-1)^2+x(3)^2)^(3/2)+2*x(4)+x(1)
+        x(4)
+        -((1-mu)/((x(1)+mu)^2+x(3)^2)^(3/2)+mu/((x(1)+mu-1)^2+x(3)^2)^(3/2))*x(3)-2*x(2)+x(3)];
+
+<span class="keyword">end</span>
+
+<span class="keyword">function</span> [X,Y,C] = ZeroVelCurve(mu,xlim,ylim)
+
+[X,Y] = meshgrid(linspace(xlim(1),xlim(2),1000),linspace(ylim(1),ylim(2),1000));
+
+r1 = sqrt((X+mu).^2+Y.^2);
+r2 = sqrt((X-1+mu).^2+Y.^2);
+C = 2*((1-mu)*(.5*r1.^2+r1.^(-1))+mu*(.5*r2.^2+r2.^(-1)));
+
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+function ThreeBodyProblem
+
+m1 = 5.9722*10^24; %Earth Mass(kg)
+m2 = 7.34767*10^22; %Moon Mass(kg)
+
+mu = (m1/m2+1)^(-1); %Jacobi Mu Non-Dimensional Constant
+
+
+%% Jacobi Synodic Frame Plot:
+xi0 = [.8;0]; eta0 = [0;.3];
+x0 = [xi0;eta0];
+tspan = [0 100];
+
+[t,x] = ode45(@(t,x)JacobiEOM(t,x,mu),tspan,x0,odeset('AbsTol',1e-12,'RelTol',1e-9));
+
+
+r1 = sqrt((x(:,1)+mu).^2+x(:,3).^2);
+r2 = sqrt((x(:,1)-1+mu).^2+x(:,3).^2);
+C = 2*((1-mu)*(.5*r1.^2+r1.^(-1))+mu*(.5*r2.^2+r2.^(-1)))-(x(:,2).^2+x(:,4).^2);
+%U = (1-mu)./r1 + mu./r2;
+
+[X,Y,CC] = ZeroVelCurve(mu,[-1.4 1.4],[-1.4 1.4]);
+
+figure; hold on; axis equal; grid on; axis([-1.4 1.4 -1.4 1.4]);
+xlabel('\xi'); ylabel('\eta'); title('Circular-Planar Synodic Frame Three-Body Problem','interpreter','latex','fontsize',20);
+plot([-1.4 1.4],[0 0],'REPLACE_WITH_DASH_DASHk');
+plot([0 0],[-1.4 1.4],'REPLACE_WITH_DASH_DASHk');
+plot(-mu,0,'k.','MarkerSize',40);
+plot(1-mu,0,'k.','MarkerSize',20);
+plot(0,0,'k.');
+
+l = plot(.83692,0,'b*');
+plot(1.15568,0,'b*');
+plot(-1.00506,0,'b*');
+plot(.48785,.86603,'b*');
+plot(.48785,-.86603,'b*');
+
+plot(x(:,1),x(:,3));
+
+contour(X,Y,CC,[C(1) C(1)]);
+
+figure; hold on;
+xlabel('Time','interpreter','latex'); ylabel('C','interpreter','latex');title('Jacobi Integral','interpreter','latex','fontsize',35);
+plot(t,C);
+
+
+
+end
+
+function xdot = NewtonEOM(x,m)
+
+G = 6.6743*10^(-17); %Nkm^2/kg^2
+
+xdot = [x(4:6)
+        G*m2*(x(7:9)-x(1:3))/(sqrt(sum((x(7:9)-x(1:3)).^2)))^3+G*m3*(x(13:15)-x(1:3))/(sqrt(sum((x(13:15)-x(1:3)).^2)))^3
+        x(10:12)
+        G*m1*(x(1:3)-x(7:9))/(sqrt(sum((x(7:9)-x(1:3)).^2)))^3+G*m3*(x(13:15)-x(7:9))/(sqrt(sum((x(13:15)-x(7:9)).^2)))^3
+        x(16:18)
+        G*m1*(x(1:3)-x(13:15))/(sqrt(sum((x(13:15)-x(1:3)).^2)))^3+G*m2*(x(7:9)-x(13:15))/(sqrt(sum((x(13:15)-x(7:9)).^2)))^3];
+    
+end
+
+function xdot = JacobiEOM(t,x,mu)
+
+xdot = [x(2)
+        -(1-mu)*(x(1)+mu)/((x(1)+mu)^2+x(3)^2)^(3/2)-mu*(x(1)+mu-1)/((x(1)+mu-1)^2+x(3)^2)^(3/2)+2*x(4)+x(1)
+        x(4)
+        -((1-mu)/((x(1)+mu)^2+x(3)^2)^(3/2)+mu/((x(1)+mu-1)^2+x(3)^2)^(3/2))*x(3)-2*x(2)+x(3)];
+
+end
+
+function [X,Y,C] = ZeroVelCurve(mu,xlim,ylim)
+
+[X,Y] = meshgrid(linspace(xlim(1),xlim(2),1000),linspace(ylim(1),ylim(2),1000));
+
+r1 = sqrt((X+mu).^2+Y.^2);
+r2 = sqrt((X-1+mu).^2+Y.^2);
+C = 2*((1-mu)*(.5*r1.^2+r1.^(-1))+mu*(.5*r2.^2+r2.^(-1)));
+
+end
+
+##### SOURCE END #####
+--></body></html>

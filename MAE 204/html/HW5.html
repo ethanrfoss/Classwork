@@ -1,0 +1,306 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>HW 5</title><meta name="generator" content="MATLAB 9.9"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2022-02-22"><meta name="DC.source" content="HW5.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>HW 5</h1><!--introduction--><p>Ethan Foss, A16129635</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">5.8:</a></li><li><a href="#2">5.19:</a></li><li><a href="#3">5.25:</a></li><li><a href="#4">6.9</a></li><li><a href="#5">Part 2:</a></li></ul></div><h2 id="1">5.8:</h2><pre class="codeinput">syms <span class="string">L</span>;
+S = [0 1 0 0 0 0; 0 0 0 0 1 0; 0 0 1 2*L 0 0]'; <span class="comment">% Screw axes</span>
+
+Js = jacobiansym(S)
+</pre><pre class="codeoutput"> 
+Js =
+ 
+[0, 0,                       sin(theta1)]
+[1, 0,                                 0]
+[0, 0,                       cos(theta1)]
+[0, 0,  cos(theta1)*(theta2 + 2*conj(L))]
+[0, 1,                                 0]
+[0, 0, -sin(theta1)*(theta2 + 2*conj(L))]
+ 
+</pre><h2 id="2">5.19:</h2><pre class="codeinput">S = [0 0 0 0 0 1;1 0 0 0 0 0;0 0 1 1 0 0;0 0 1 1/sqrt(2) 1/sqrt(2) 0;1/sqrt(2) -1/sqrt(2) 0 0 0 -1/sqrt(2);0 0 0 0 1 0]'; <span class="comment">% Screw Axes</span>
+
+Js = jacobiansym(S);
+Js1to4 = Js(:,1:4) <span class="comment">% Part a</span>
+
+singular = rank(S) == length(S) <span class="comment">% Part b</span>
+
+ci = S'*[0;1;-1;1;0;0] <span class="comment">% Part Ci</span>
+cii = S'*[1;-1;0;1;0;-1] <span class="comment">% Part Cii</span>
+</pre><pre class="codeoutput"> 
+Js1to4 =
+ 
+[0,      1,                      0,                                                                                        0]
+[0,      0,           -sin(theta2),                                                                             -sin(theta2)]
+[0,      0,            cos(theta2),                                                                              cos(theta2)]
+[0,      0, theta1*sin(theta2) + 1, (2^(1/2)*cos(theta3))/2 - cos(theta3) - (2^(1/2)*sin(theta3))/2 + theta1*sin(theta2) + 1]
+[0, theta1,                      0,              (cos(theta2)*(2^(1/2)*cos(theta3) - 2*sin(theta3) + 2^(1/2)*sin(theta3)))/2]
+[1,      0,                      0,              (sin(theta2)*(2^(1/2)*cos(theta3) - 2*sin(theta3) + 2^(1/2)*sin(theta3)))/2]
+ 
+
+singular =
+
+  logical
+
+   1
+
+
+ci =
+
+         0
+         0
+         0
+   -0.2929
+   -0.7071
+         0
+
+
+cii =
+
+   -1.0000
+    1.0000
+    1.0000
+    0.7071
+    2.1213
+         0
+
+</pre><h2 id="3">5.25:</h2><pre class="codeinput">W1 = 109; W2 = 82; L1 = 425; L2 = 392; H1 = 89; H2 = 95; <span class="comment">% lengths</span>
+S = [0 0 1 0 0 0;0 1 0 -H1 0 0;0 1 0 -H1 0 L1;0 1 0 -H1 0 L1+L2;0 0 -1 -W1 L1+L2 0;0 1 0 H2-H1 0 L1+L2]'; <span class="comment">% Screw Axes</span>
+J = jacobiansym(S);
+theta1 = pi/2;theta2 = pi/2;theta3 = pi/2;theta4 = pi/2;theta5 = pi/2;theta6 = pi/2;
+J = subs(J); <span class="comment">% substitute thetas</span>
+
+Jw = J(1:3,:) <span class="comment">% part a</span>
+Jv = J(4:6,:) <span class="comment">% part a</span>
+
+Aw = Jw*Jw';
+Av = Jv*Jv';
+
+[Sw,Ew] = eig(Aw);
+[Sv,Ev] = eig(Av);
+Sv = double([Sv(:,1)/sqrt(sum(Sv(:,1).^2)),Sv(:,2)/sqrt(sum(Sv(:,2).^2)),Sv(:,3)/sqrt(sum(Sv(:,3).^2))]);
+
+PrincipleAxesJw = real(double([sqrt(Ew) Sw]))
+PrincipleAxesJv = real(double([sqrt(Ev) Sv]))
+
+[St,Et] = eig(Aw^-1);
+[Sf,Ef] = eig(Av^-1);
+Sf = double([Sf(:,1)/sqrt(sum(Sf(:,1).^2)),Sf(:,2)/sqrt(sum(Sf(:,2).^2)),Sf(:,3)/sqrt(sum(Sf(:,3).^2))]);
+
+PrincipleAxesJt = real(double([sqrt(Et) St]))
+PrincipleAxesJf = real(double([sqrt(Ef) Sf]))
+</pre><pre class="codeoutput"> 
+Jw =
+ 
+[0, -1, -1, -1, 0, 0]
+[0,  0,  0,  0, 1, 0]
+[1,  0,  0,  0, 0, 1]
+ 
+ 
+Jv =
+ 
+[0,   0,   0,    0,  336, -297]
+[0, -89, 336,  336,    0,  109]
+[0,   0,   0, -392, -109,    0]
+ 
+
+PrincipleAxesJw =
+
+    1.7321         0         0    1.0000         0         0
+         0    1.0000         0         0    1.0000         0
+         0         0    1.4142         0         0    1.0000
+
+
+PrincipleAxesJv =
+
+  585.9696         0         0    0.0314    0.3106   -0.9500
+         0  228.0305         0   -0.8062    0.5696    0.1596
+         0         0  465.7099    0.5907    0.7609    0.2683
+
+
+PrincipleAxesJt =
+
+    1.0000         0         0         0    1.0000         0
+         0    0.5774         0    1.0000         0         0
+         0         0    0.7071         0         0    1.0000
+
+
+PrincipleAxesJf =
+
+    0.0044         0         0    0.3106    0.0314   -0.9500
+         0    0.0017         0    0.5696   -0.8062    0.1596
+         0         0    0.0021    0.7609    0.5907    0.2683
+
+</pre><h2 id="4">6.9</h2><pre class="codeinput">B = [0 0 1 0 2 0;0 0 1 0 1 0]';
+M = [1 0 0 2;0 1 0 0;0 0 1 0;0 0 0 1];
+Tsd = [-.5 -.866 0 .366;.866 -.5 0 1.366; 0 0 1 0;0 0 0 1];
+thetaguess = [0 30]'*pi/180;
+ew = .001; ev = 10^-4;
+
+[thetalist, success] = IKinBodyIterations(B, M, Tsd, thetaguess, ew, ev);
+</pre><pre class="codeoutput">| i: 0 | thetas: [0;30] | Tsb: [0.866 -0.5 0 1.866;0.5 0.866 0 0.5;0 0 1 0;0 0 0 1] | Vb: [0;0;1.571;0.4979;1.858;0] | wbmag: 1.5708 | vbmag: 1.9238
+| i: 1 | thetas: [34.23;79.18] | Tsb: [-0.3973 -0.9177 0 0.4294;0.9177 -0.3973 0 1.48;0 0 1 0;0 0 0 1] | Vb: [0;0;0.115;-0.0736;0.108;0] | wbmag: 0.115 | vbmag: 0.13073
+| i: 2 | thetas: [29.98;90.22] | Tsb: [-0.503 -0.8643 0 0.3632;0.8643 -0.503 0 1.364;0 0 1 0;0 0 0 1] | Vb: [0;0;-0.003495;0.000348;-0.003474;0] | wbmag: 0.0034953 | vbmag: 0.0034914
+| i: 3 | thetas: [30;90] | Tsb: [-0.5 -0.866 0 0.366;0.866 -0.5 0 1.366;0 0 1 0;0 0 0 1] | Vb: [0;0;-1.136e-05;3.359e-09;1.064e-05;0] | wbmag: 1.136e-05 | vbmag: 1.064e-05
+</pre><h2 id="5">Part 2:</h2><pre class="codeinput">W1 = 109; W2 = 82; L1 = 425; L2 = 392; H1 = 89; H2 = 95; <span class="comment">% Lengths(mm)</span>
+M = [-1 0 0 L1+L2;0 0 1 W1+W2; 0 1 0 H1-H2; 0 0 0 1]; <span class="comment">% Zero Position M matrix</span>
+S = [0 0 1 0 0 0;0 1 0 -H1 0 0;0 1 0 -H1 0 L1;0 1 0 -H1 0 L1+L2;0 0 -1 -W1 L1+L2 0;0 1 0 H2-H1 0 L1+L2]'; <span class="comment">% Screw axes</span>
+
+<span class="keyword">for</span> i = 1:6
+    B(:,i) = Adjoint(M^-1)*S(:,i); <span class="comment">% Body Screw Axes</span>
+<span class="keyword">end</span>
+
+Tsd = [0 1 0 -500;0 0 -1 100;-1 0 0 100;0 0 0 1]; <span class="comment">% Desired End effector position</span>
+ew = .001; <span class="comment">%rad</span>
+ev = .001*1000; <span class="comment">% mm</span>
+thetaguess = [3,-1,2,-1,-.5,-1.5]'; <span class="comment">% Theta Guess</span>
+
+[theta,success] = IKinBodyIterations(B, M, Tsd, thetaguess, ew, ev); <span class="comment">% Determine thetas, create report</span>
+</pre><pre class="codeoutput">| i: 0 | thetas: [171.9;-57.3;114.6;-57.3;-28.65;-85.94] | Tsb: [0.06624 0.9341 0.3508 -423.6;0.02481 0.3499 -0.9365 -122.4;-0.9975 0.07074 0 21.77;0 0 0 1] | Vb: [0.3583;-0.01269;-0.07004;-78.97;-32.93;-234] | wbmag: 0.36526 | vbmag: 249.1847
+| i: 1 | thetas: [145.8;-61.52;102.4;-42.43;-34.22;-88.63] | Tsb: [0.002099 1 -1.246e-05 -476;0.01488 -4.369e-05 -0.9999 109.8;-0.9999 0.002098 -0.01488 109.7;0 0 0 1] | Vb: [-2.808e-05;-0.01488;-0.002099;9.553;-24.02;9.85] | wbmag: 0.015027 | vbmag: 27.6665
+| i: 2 | thetas: [148.2;-58.29;99.11;-40.91;-31.74;-89.88] | Tsb: [0.0006004 1 -0.000164 -499.7;0.0008823 -0.0001645 -1 99.05;-1 0.0006002 -0.0008824 99.27;0 0 0 1] | Vb: [-0.0001643;-0.0008824;-0.0006003;-0.7247;-0.2752;-0.9502] | wbmag: 0.0010798 | vbmag: 1.2263
+| i: 3 | thetas: [148.2;-58.27;98.95;-40.67;-31.82;-90] | Tsb: [-1.187e-06 1 -8.962e-07 -500;-2.084e-06 -8.962e-07 -1 100;-1 -1.187e-06 2.084e-06 100;0 0 0 1] | Vb: [-8.962e-07;2.084e-06;1.187e-06;0.001399;-0.001397;-0.0002457] | wbmag: 2.5602e-06 | vbmag: 0.0019922
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% HW 5
+% Ethan Foss, A16129635
+
+%% 5.8:
+syms L;
+S = [0 1 0 0 0 0; 0 0 0 0 1 0; 0 0 1 2*L 0 0]'; % Screw axes
+
+Js = jacobiansym(S)
+
+%% 5.19:
+S = [0 0 0 0 0 1;1 0 0 0 0 0;0 0 1 1 0 0;0 0 1 1/sqrt(2) 1/sqrt(2) 0;1/sqrt(2) -1/sqrt(2) 0 0 0 -1/sqrt(2);0 0 0 0 1 0]'; % Screw Axes
+
+Js = jacobiansym(S);
+Js1to4 = Js(:,1:4) % Part a
+
+singular = rank(S) == length(S) % Part b
+
+ci = S'*[0;1;-1;1;0;0] % Part Ci
+cii = S'*[1;-1;0;1;0;-1] % Part Cii
+
+%% 5.25:
+
+W1 = 109; W2 = 82; L1 = 425; L2 = 392; H1 = 89; H2 = 95; % lengths
+S = [0 0 1 0 0 0;0 1 0 -H1 0 0;0 1 0 -H1 0 L1;0 1 0 -H1 0 L1+L2;0 0 -1 -W1 L1+L2 0;0 1 0 H2-H1 0 L1+L2]'; % Screw Axes
+J = jacobiansym(S);
+theta1 = pi/2;theta2 = pi/2;theta3 = pi/2;theta4 = pi/2;theta5 = pi/2;theta6 = pi/2;
+J = subs(J); % substitute thetas
+
+Jw = J(1:3,:) % part a
+Jv = J(4:6,:) % part a
+
+Aw = Jw*Jw';
+Av = Jv*Jv';
+
+[Sw,Ew] = eig(Aw);
+[Sv,Ev] = eig(Av);
+Sv = double([Sv(:,1)/sqrt(sum(Sv(:,1).^2)),Sv(:,2)/sqrt(sum(Sv(:,2).^2)),Sv(:,3)/sqrt(sum(Sv(:,3).^2))]);
+
+PrincipleAxesJw = real(double([sqrt(Ew) Sw]))
+PrincipleAxesJv = real(double([sqrt(Ev) Sv]))
+
+[St,Et] = eig(Aw^-1);
+[Sf,Ef] = eig(Av^-1);
+Sf = double([Sf(:,1)/sqrt(sum(Sf(:,1).^2)),Sf(:,2)/sqrt(sum(Sf(:,2).^2)),Sf(:,3)/sqrt(sum(Sf(:,3).^2))]);
+
+PrincipleAxesJt = real(double([sqrt(Et) St]))
+PrincipleAxesJf = real(double([sqrt(Ef) Sf]))
+
+%% 6.9
+
+B = [0 0 1 0 2 0;0 0 1 0 1 0]';
+M = [1 0 0 2;0 1 0 0;0 0 1 0;0 0 0 1];
+Tsd = [-.5 -.866 0 .366;.866 -.5 0 1.366; 0 0 1 0;0 0 0 1];
+thetaguess = [0 30]'*pi/180;
+ew = .001; ev = 10^-4;
+
+[thetalist, success] = IKinBodyIterations(B, M, Tsd, thetaguess, ew, ev);
+
+
+%% Part 2:
+
+W1 = 109; W2 = 82; L1 = 425; L2 = 392; H1 = 89; H2 = 95; % Lengths(mm)
+M = [-1 0 0 L1+L2;0 0 1 W1+W2; 0 1 0 H1-H2; 0 0 0 1]; % Zero Position M matrix
+S = [0 0 1 0 0 0;0 1 0 -H1 0 0;0 1 0 -H1 0 L1;0 1 0 -H1 0 L1+L2;0 0 -1 -W1 L1+L2 0;0 1 0 H2-H1 0 L1+L2]'; % Screw axes
+
+for i = 1:6
+    B(:,i) = Adjoint(M^-1)*S(:,i); % Body Screw Axes
+end
+
+Tsd = [0 1 0 -500;0 0 -1 100;-1 0 0 100;0 0 0 1]; % Desired End effector position
+ew = .001; %rad 
+ev = .001*1000; % mm
+thetaguess = [3,-1,2,-1,-.5,-1.5]'; % Theta Guess
+
+[theta,success] = IKinBodyIterations(B, M, Tsd, thetaguess, ew, ev); % Determine thetas, create report
+
+
+##### SOURCE END #####
+--></body></html>
