@@ -1,0 +1,236 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>HW2</title><meta name="generator" content="MATLAB 9.9"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2022-10-30"><meta name="DC.source" content="HW2.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1></h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">2</a></li><li><a href="#2">3</a></li></ul></div><h2 id="1">2</h2><pre class="codeinput">G0=tf([0 1 -1.3],[1 -1.5 0.8],1); H0=tf([1 -1.8 1.2],[1 -1.5 0.8],1);
+N=4096; u=sign(randn(N,1)); e=randn(N,1);
+y=lsim(G0,u) + lsim(H0,e);
+PHI = [u(3:N) u(2:N-1) u(1:N-2) -y(2:N-1) -y(1:N-2)];
+Y = y(3:N);
+disp(<span class="string">'Problem 2 Least Squares Estimate:'</span>);
+theta = PHI\Y
+
+<span class="keyword">for</span> i = 1:100
+G0=tf([0 1 -1.3],[1 -1.5 0.8],1); H0=tf([1 -1.8 1.2],[1 -1.5 0.8],1);
+N=4096; u=sign(randn(N,1)); e=randn(N,1);
+y=lsim(G0,u) + lsim(H0,e);
+PHI = [u(5:N) u(4:N-1) u(3:N-2) -y(4:N-1) -y(3:N-2)];
+XI = [u(5:N) u(4:N-1) u(3:N-2) u(2:N-3) u(1:N-4)];
+Y = y(5:N);
+theta(:,i) = (XI'*PHI)\(XI'*Y);
+<span class="keyword">end</span>
+
+disp(<span class="string">'Problem 2 Instrumental Variable Least Squares Estimate:'</span>);
+mean(theta')'
+</pre><pre class="codeoutput">Problem 2 Least Squares Estimate:
+
+theta =
+
+   -0.0144
+    1.0425
+   -0.4210
+   -0.6792
+    0.1858
+
+Problem 2 Instrumental Variable Least Squares Estimate:
+
+ans =
+
+    0.0032
+    0.9971
+   -1.2984
+   -1.4973
+    0.7975
+
+</pre><h2 id="2">3</h2><pre class="codeinput">clear <span class="string">all</span>
+load(<span class="string">'mass_spring_damper.mat'</span>);
+
+N = length(t);
+
+PHI = [u(2:end-1) u(1:end-2) -y(2:end-1) -y(1:end-2)];
+Y = y(3:end);
+
+disp(<span class="string">'Problem 3 Least Squares Estimate:'</span>);
+theta = PHI\Y
+
+A = [2.3 2.3 -1 -1];
+b = 1;
+
+R = 1/(N - 1)*PHI'*PHI;
+
+F = 1/(N - 1)*PHI'*Y;
+
+disp(<span class="string">'Problem 3 Constrained Least Sqaures Estimate:'</span>);
+thetacls = [R A'; A 0]\[F;b]
+
+G0=tf([0 theta(1) theta(2)],[1 theta(3) theta(4)],1);
+ysim = lsim(G0,u);
+
+G0CLS=tf([0 thetacls(1) thetacls(2)],[1 thetacls(3) thetacls(4)],1);
+ysimcls = lsim(G0CLS,u);
+
+figure; hold <span class="string">on</span>; title(<span class="string">'Problem 3 Least Squares Estimate'</span>);
+plot(t(100:200),y(100:200));
+plot(t(100:200),ysim(100:200));
+legend(<span class="string">'Data'</span>,<span class="string">'LS'</span>); xlabel(<span class="string">'t[s]'</span>); ylabel(<span class="string">'x[m]'</span>);
+
+figure; hold <span class="string">on</span>; title(<span class="string">'Problem 3 Constrained Least Squares Estimate'</span>);
+plot(t(100:200),y(100:200));
+plot(t(100:200),ysim(100:200));
+plot(t(100:200),ysimcls(100:200));
+legend(<span class="string">'Data'</span>,<span class="string">'LS'</span>,<span class="string">'CLS'</span>);  xlabel(<span class="string">'t[s]'</span>); ylabel(<span class="string">'x[m]'</span>);
+</pre><pre class="codeoutput">Problem 3 Least Squares Estimate:
+
+theta =
+
+    0.0327
+    0.0344
+   -1.7538
+    0.9011
+
+Problem 3 Constrained Least Sqaures Estimate:
+
+thetacls =
+
+    0.0312
+    0.0329
+   -1.7569
+    0.9044
+    0.0116
+
+</pre><img vspace="5" hspace="5" src="HW2_01.png" alt=""> <img vspace="5" hspace="5" src="HW2_02.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+
+%% 2
+
+G0=tf([0 1 -1.3],[1 -1.5 0.8],1); H0=tf([1 -1.8 1.2],[1 -1.5 0.8],1);
+N=4096; u=sign(randn(N,1)); e=randn(N,1);
+y=lsim(G0,u) + lsim(H0,e);
+PHI = [u(3:N) u(2:N-1) u(1:N-2) -y(2:N-1) -y(1:N-2)];
+Y = y(3:N);
+disp('Problem 2 Least Squares Estimate:');
+theta = PHI\Y
+
+for i = 1:100
+G0=tf([0 1 -1.3],[1 -1.5 0.8],1); H0=tf([1 -1.8 1.2],[1 -1.5 0.8],1);
+N=4096; u=sign(randn(N,1)); e=randn(N,1);
+y=lsim(G0,u) + lsim(H0,e);
+PHI = [u(5:N) u(4:N-1) u(3:N-2) -y(4:N-1) -y(3:N-2)];
+XI = [u(5:N) u(4:N-1) u(3:N-2) u(2:N-3) u(1:N-4)];
+Y = y(5:N);
+theta(:,i) = (XI'*PHI)\(XI'*Y);
+end
+
+disp('Problem 2 Instrumental Variable Least Squares Estimate:');
+mean(theta')'
+
+%% 3
+clear all
+load('mass_spring_damper.mat');
+
+N = length(t);
+
+PHI = [u(2:end-1) u(1:end-2) -y(2:end-1) -y(1:end-2)];
+Y = y(3:end);
+
+disp('Problem 3 Least Squares Estimate:');
+theta = PHI\Y
+
+A = [2.3 2.3 -1 -1];
+b = 1;
+
+R = 1/(N - 1)*PHI'*PHI;
+
+F = 1/(N - 1)*PHI'*Y;
+
+disp('Problem 3 Constrained Least Sqaures Estimate:');
+thetacls = [R A'; A 0]\[F;b]
+
+G0=tf([0 theta(1) theta(2)],[1 theta(3) theta(4)],1);
+ysim = lsim(G0,u);
+
+G0CLS=tf([0 thetacls(1) thetacls(2)],[1 thetacls(3) thetacls(4)],1);
+ysimcls = lsim(G0CLS,u);
+
+figure; hold on; title('Problem 3 Least Squares Estimate');
+plot(t(100:200),y(100:200));
+plot(t(100:200),ysim(100:200));
+legend('Data','LS'); xlabel('t[s]'); ylabel('x[m]');
+
+figure; hold on; title('Problem 3 Constrained Least Squares Estimate');
+plot(t(100:200),y(100:200));
+plot(t(100:200),ysim(100:200));
+plot(t(100:200),ysimcls(100:200));
+legend('Data','LS','CLS');  xlabel('t[s]'); ylabel('x[m]');
+
+
+
+
+
+##### SOURCE END #####
+--></body></html>
