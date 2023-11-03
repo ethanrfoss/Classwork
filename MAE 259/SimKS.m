@@ -3,40 +3,29 @@
 
 function SimKS
 
-[Aim,bim,Aex,bex] = IEXRKCB3c;
+[Aim,bim,Aex,bex] = IEXRKCB3c; % Initialize Butcher Tableau
 
-% Aim = [0 0 0 0;
-%        4/15 4/15 0 0;
-%        4/15 1/3 1/15 0;
-%        4/15 1/3 7/30 1/6];
-% bim = [4/15;1/3;7/30;1/6];
-% cim = [0;8/15;2/3;1];
-% 
-% Aex = [0 0 0 0;
-%        8/15 0 0 0;
-%        1/4 5/12 0 0;
-%        1/4 0 3/4 0];
-% bex = [1/4;0;3/4;0];
-% cex = [0;8/15;2/3;1];
-
-S.L = 50;
-S.tf = 100;
-S.dt = .05;
+% Sytem Parameters
+S.L = 50; % Length
+S.tf = 100; % Final Time
+S.dt = .05; % Time Step
 N = [128]; % For testing
 %N = [2^11 2^13 2^15]; % REALLY Long Computation Time
 
+% For Loop for Each Discretization Count
 for i = 1:length(N)
 
     S.N = N(i);
-    u0 = .15*randn(S.N,1);
+    u0 = .15*randn(S.N,1); % Initial Condition
 
-    [t1,x1,u1,T1] = FullStorageIMEXRK(Aex,bex,Aim,bim,S,u0);
+    [t1,x1,u1,T1] = FullStorageIMEXRK(Aex,bex,Aim,bim,S,u0); % Full Storage Simulate
     disp(['N = ' num2str(N(i)) ' Full Storage Computation Time = '  num2str(T1)]);
-    [t2,x2,u2,T2] = ThreeRegisterIMEXRK(Aex,bex,Aim,bim,S,u0);
+    [t2,x2,u2,T2] = ThreeRegisterIMEXRK(Aex,bex,Aim,bim,S,u0); % Thre Register Storage Simulate
     disp(['N = ' num2str(N(i)) ' Three Register Computation Time = '  num2str(T2)]);
-    [t3,x3,u3,T3] = TwoRegisterIMEXRK(Aex,bex,Aim,bim,S,u0);
+    [t3,x3,u3,T3] = TwoRegisterIMEXRK(Aex,bex,Aim,bim,S,u0); % Two Register Storage Simulate
     disp(['N = ' num2str(N(i)) ' Two Register Computation Time = '  num2str(T3)]);
-
+    
+    % Print Simulation Times
     save(sprintf('KSFull%d.mat',log2(N(i))),'t1','x1','u1','T1');
     save(sprintf('KSThree%d.mat',log2(N(i))),'t2','x2','u2','T2');
     save(sprintf('KSTwo%d.mat',log2(N(i))),'t3','x3','u3','T3');
@@ -67,18 +56,23 @@ end
 
 end
 
+%% KSg
+% Function evaluation for nonlinear  non-stiff part of ODE
 function g = KSg(uhat,N,kx)
 
-uhat(fix(N/3)+1:end)=0;
+uhat(fix(N/3)+1:end)=0; % dealias
 
-r = NR_RFFTinv(uhat,N); 
+r = NR_RFFTinv(uhat,N); % Take inverse
 
-r = -r.^2;
+r = -r.^2; % square
 
-g = 1i*kx.*NR_RFFT(r,N);
+g = 1i*kx.*NR_RFFT(r,N); % FFT
 
 end
 
+%% Full Storage IMEXRK
+% Simulate KS with given butcher tableau, system parameters, and initial
+% conditions
 function [t,x,u,T] = FullStorageIMEXRK(Aex,bex,Aim,bim,S,u0)
 
 % Integration Setup
@@ -108,9 +102,8 @@ g = zeros(S.N/2,s);
 T = 0;
 
 for i = 1:length(t)-1
-    %uhat(fix(S.N/3)+1:end,i)=0;
     tic;
-
+    % Full Storage Algorithm Starts Here
     % k = 1
     y = uhat(:,i);
     f(:,1) = Aop.*y./(1-Aimdt(1,1)*Aop);
@@ -125,10 +118,10 @@ for i = 1:length(t)-1
     end
     
     uhat(:,i+1) = uhat(:,i) + f*bimdt + g*bexdt;
-    
+    % Full Storage Algorithm Ends Here
     T = T + toc;
 
-    u(:,i+1) = NR_RFFTinv(uhat(:,i+1),S.N);
+    u(:,i+1) = NR_RFFTinv(uhat(:,i+1),S.N); % Inv fft
 
 end
 
@@ -159,9 +152,10 @@ Aop = kx.^2-kx.^4;
 T = 0;
 
 for i = 1:length(t)-1
-    %uhat(fix(S.N/3)+1:end,i)=0;
+
     tic;
-    
+
+    % Three Register Storage Algorithm Starts Here
     % k = 1
     y = uhat(:,i);
     uhat(:,i+1) = uhat(:,i);
@@ -179,6 +173,8 @@ for i = 1:length(t)-1
 
     end
     
+    % Three Register Storage Algorithm Ends Here
+
     T = T + toc;
 
     u(:,i+1) = NR_RFFTinv(uhat(:,i+1),S.N);
@@ -212,9 +208,10 @@ Aop = kx.^2-kx.^4;
 T = 0;
 
 for i = 1:length(t)-1
-    %uhat(fix(S.N/3)+1:end,i)=0;
     tic;
     
+    % Two Register Storage Algorithm Starts Here
+
     % k = 1
     y = uhat(:,i);
     uhat(:,i+1) = uhat(:,i);
@@ -233,6 +230,8 @@ for i = 1:length(t)-1
 
     end
 
+    % Two Register Storage Algorithm Ednds Here
+
     T = T + toc;
 
     u(:,i+1) = NR_RFFTinv(uhat(:,i+1),S.N);
@@ -241,6 +240,7 @@ end
 
 end
 
+%% FFT from NR
 function [uh]=NR_RFFT(u,N)
 % function [uh]=NR_RFFT(u,N)
 % This routine was written by substituting RFFT2 into RFFT1 and simplifying.
@@ -258,6 +258,7 @@ uh(1,1)=(real(wh(1))+imag(wh(1)))/2 + i*(real(wh(1))-imag(wh(1)))/2;
 uh(N/4+1,1)=(real(wh(N/4+1))-i*imag(wh(N/4+1)))/2;
 end % function NR_RFFT
 
+%% FFTinv from NR
 function [u]=NR_RFFTinv(uh,N)
 % function [u]=NR_RFFTinv(uh,N)
 % This routine was written by inverting the steps of RFFT and doing them in reverse.
@@ -276,6 +277,7 @@ w=NR_FFTdirect(wh,N/2,1);
 u(1:2:N-1,1)=real(w)';  u(2:2:N,1)=imag(w)';
 end % function NR_RFFTinv
 
+%% FFTdirect from NR
 function x=NR_FFTdirect(x,N,g)
 % function x=NR_FFTdirect(x,N,g)
 % Compute the forward FFT (g=-1) or inverse FFT (g=1) of a vector x of order N=2^s.
@@ -301,6 +303,7 @@ end
 if g==-1, x=x/N; end              % Scale the forward version of the transform by 1/N.
 end % function NR_FFTdirect
 
+%% Butcehr Tableau Initialization
 function [Aim,bim,Aex,bex] = IEXRKCB3c
 
 aim21 = 0;
