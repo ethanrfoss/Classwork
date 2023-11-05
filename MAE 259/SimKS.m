@@ -5,6 +5,20 @@ function SimKS
 
 [Aim,bim,Aex,bex] = IEXRKCB3c; % Initialize Butcher Tableau
 
+% Aim = [0 0 0 0;
+%        4/15 4/15 0 0;
+%        4/15 1/3 1/15 0;
+%        4/15 1/3 7/30 1/6];
+% 
+% bim = [4/15;1/3;7/30;1/6];
+% 
+% Aex = [0 0 0 0;
+%        8/15 0 0 0;
+%        1/4 5/12 0 0;
+%        1/4 0 3/4 0];
+% 
+% bex = [1/4;0;3/4;0];
+
 % Sytem Parameters
 S.L = 50; % Length
 S.tf = 100; % Final Time
@@ -16,7 +30,7 @@ N = [128]; % For testing
 for i = 1:length(N)
 
     S.N = N(i);
-    u0 = .15*randn(S.N,1); % Initial Condition
+    u0 = randn(N,1); % Initial Condition
 
     [t1,x1,u1,T1] = FullStorageIMEXRK(Aex,bex,Aim,bim,S,u0); % Full Storage Simulate
     disp(['N = ' num2str(N(i)) ' Full Storage Computation Time = '  num2str(T1)]);
@@ -106,19 +120,20 @@ for i = 1:length(t)-1
     % Full Storage Algorithm Starts Here
     % k = 1
     y = uhat(:,i);
-    f(:,1) = Aop.*y./(1-Aimdt(1,1)*Aop);
-    g(:,1) = KSg(y + Aimdt(1,1)*f(:,1),S.N,kx);
+    f(:,1) = Aop.*y./(1-Aimdt(1,1)*Aop); % 4N FLOPs
+    g(:,1) = KSg(y + Aimdt(1,1)*f(:,1),S.N,kx); % 2N FLOPs + 1 FFT
 
     for k = 2:s
-        y = uhat(:,i) + f(:,1:k-1)*Aimdt(k,1:k-1)' + g(:,1:k-1)*Aexdt(k,1:k-1)';
+        y = uhat(:,i) + f(:,1:k-1)*Aimdt(k,1:k-1)' + g(:,1:k-1)*Aexdt(k,1:k-1)'; % 4Nk + 2N FLOPs s-1 times
 
-        f(:,k) = Aop.*y./(1-Aimdt(k,k)*Aop);
-        g(:,k) = KSg(y + Aimdt(k,k)*f(:,k),S.N,kx);
+        f(:,k) = Aop.*y./(1-Aimdt(k,k)*Aop); % 4N FLOPs s-1 times
+        g(:,k) = KSg(y + Aimdt(k,k)*f(:,k),S.N,kx); % 2N Flops + 1 FFT s-1 times
 
     end
     
-    uhat(:,i+1) = uhat(:,i) + f*bimdt + g*bexdt;
-    % Full Storage Algorithm Ends Here
+    uhat(:,i+1) = uhat(:,i) + f*bimdt + g*bexdt; % 4sN + 2N FLOPs
+    % Full Storage Algorithm Ends Here 
+    % Total Cost: 2Ns^2 + 14Ns - 4N FLOPs + s FFTs
     T = T + toc;
 
     u(:,i+1) = NR_RFFTinv(uhat(:,i+1),S.N); % Inv fft
@@ -155,25 +170,26 @@ for i = 1:length(t)-1
 
     tic;
 
-    % Three Register Storage Algorithm Starts Here
+    % Two Register Storage Algorithm Starts Here
     % k = 1
     y = uhat(:,i);
     uhat(:,i+1) = uhat(:,i);
 
-    y = y./(1-Aimdt(1,1)*Aop);
-    uhat(:,i+1) = uhat(:,i+1) + bimdt(1)*Aop.*y+bexdt(1)*KSg(y,S.N,kx);
+    y = y./(1-Aimdt(1,1)*Aop); % 3N FLOPs
+    uhat(:,i+1) = uhat(:,i+1) + bimdt(1)*Aop.*y+bexdt(1)*KSg(y,S.N,kx); % 5N FLOPs + 1 FFT
 
     for k = 2:s
 
-        y = uhat(:,i+1) + (Aimdt(k,k-1)-bimdt(k-1))*Aop.*y + (Aexdt(k,k-1)-bexdt(k-1))*KSg(y,S.N,kx);
+        y = uhat(:,i+1) + (Aimdt(k,k-1)-bimdt(k-1))*Aop.*y + (Aexdt(k,k-1)-bexdt(k-1))*KSg(y,S.N,kx); % 7N FLOPs + 1 FFT s-1 times
 
-        y = y./(1-Aimdt(k,k)*Aop);
-        uhat(:,i+1) = uhat(:,i+1) + bimdt(k)*Aop.*y+bexdt(k)*KSg(y,S.N,kx);
+        y = y./(1-Aimdt(k,k)*Aop); % 3N FLOPs s-1 times
+        uhat(:,i+1) = uhat(:,i+1) + bimdt(k)*Aop.*y+bexdt(k)*KSg(y,S.N,kx); % 5N FLOPs + 1 FFT s-1 times
 
 
     end
     
-    % Three Register Storage Algorithm Ends Here
+    % Two Register Storage Algorithm Ends Here
+    % Total Cost: 2Ns^2 + 14Ns - 4N FLOPs + s FFTs
 
     T = T + toc;
 
@@ -210,7 +226,7 @@ T = 0;
 for i = 1:length(t)-1
     tic;
     
-    % Two Register Storage Algorithm Starts Here
+    % Three Register Storage Algorithm Starts Here
 
     % k = 1
     y = uhat(:,i);
@@ -230,7 +246,7 @@ for i = 1:length(t)-1
 
     end
 
-    % Two Register Storage Algorithm Ednds Here
+    % Three Register Storage Algorithm Ednds Here
 
     T = T + toc;
 
@@ -311,7 +327,7 @@ aim22 = 3375509829940/4525919076317;
 aim32 = -11712383888607531889907/32694570495602105556248;
 aim33 = 566138307881/912153721139;
 b1 = 0;
-b2 = 673488652607/4525919076317;
+b2 = 673488652607/2334033219546;
 b3 = 493801219040/853653026979;
 b4 = 184814777513/1389668723319;
 aex21 = 3375509829940/4525919076317;
